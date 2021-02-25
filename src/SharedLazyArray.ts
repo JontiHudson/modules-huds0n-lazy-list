@@ -16,11 +16,12 @@ export namespace SharedLazyArray {
   };
 }
 
-export class SharedLazyArray<E> extends SharedState<SharedLazyArray.State<E>> {
+export class SharedLazyArray<E> {
   private _lazyGetFunction: SharedLazyArray.GetFunction<E>;
+  private _SharedState: SharedState<SharedLazyArray.State<E>>;
 
   constructor(lazyGetFunction: SharedLazyArray.GetFunction<E>) {
-    super({
+    this._SharedState = new SharedState<SharedLazyArray.State<E>>({
       data: [],
       pageEnd: false,
       isError: null,
@@ -30,27 +31,44 @@ export class SharedLazyArray<E> extends SharedState<SharedLazyArray.State<E>> {
     this._lazyGetFunction = lazyGetFunction;
 
     this.lazyGet = this.lazyGet.bind(this);
+    this.reset = this.reset.bind(this);
     this.useArray = this.useArray.bind(this);
   }
 
   get data() {
-    return this.state.data;
+    return this._SharedState.state.data;
+  }
+
+  get isError() {
+    return this._SharedState.state.isError;
+  }
+
+  get isLoading() {
+    return this._SharedState.state.isLoading;
+  }
+
+  get pageEnd() {
+    return this._SharedState.state.pageEnd;
+  }
+
+  get SharedState() {
+    return this._SharedState;
   }
 
   async lazyGet(options?: { reset: boolean }) {
-    if (options?.reset) this.reset();
+    if (options?.reset) this._SharedState.reset();
 
-    const { data, pageEnd } = this.state;
+    const { data, pageEnd } = this._SharedState.state;
 
     if (!pageEnd) {
-      this.setState({ isLoading: true });
+      this._SharedState.setState({ isLoading: true });
 
       try {
         const { data: newData, pageEnd: newPageEnd } = await Promise.resolve(
           this._lazyGetFunction(data.length, data),
         );
 
-        this.setState({
+        this._SharedState.setState({
           data: [...data, ...newData],
           isLoading: false,
           pageEnd: newPageEnd || !newData.length,
@@ -58,13 +76,13 @@ export class SharedLazyArray<E> extends SharedState<SharedLazyArray.State<E>> {
 
         return { data: newData, pageEnd: newPageEnd };
       } catch (error) {
-        this.setState({
+        this._SharedState.setState({
           isError: new Error({
             name: 'State Error',
             code: 'LAZY_GET_ERROR',
             message: 'Error lazy getting data',
             severity: 'HIGH',
-            info: { ...this.state },
+            info: { ...this._SharedState.state },
           }),
           isLoading: false,
         });
@@ -74,8 +92,12 @@ export class SharedLazyArray<E> extends SharedState<SharedLazyArray.State<E>> {
     return null;
   }
 
+  reset() {
+    this._SharedState.reset();
+  }
+
   useArray() {
-    const [state] = super.useState(['data', 'isError', 'isLoading', 'pageEnd']);
+    const [state] = this._SharedState.useState();
 
     return state;
   }

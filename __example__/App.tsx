@@ -74,6 +74,7 @@ const DemoLazyState = new SharedLazyArray<DemoElement>(async (offset) => {
       break;
     }
 
+    // @ts-ignore
     data.push({ value });
   }
 

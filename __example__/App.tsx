@@ -1,7 +1,7 @@
 import React from 'react';
-import { Text, SafeAreaView } from 'react-native';
+import { Text, SafeAreaView, View } from 'react-native';
 
-import { Button, View } from '@huds0n/components';
+import { Button } from '@huds0n/components';
 import { LazyList, SharedLazyArray } from '@huds0n/lazy-list';
 import { timeout } from '@huds0n/utilities';
 

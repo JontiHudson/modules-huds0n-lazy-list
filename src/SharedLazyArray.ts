@@ -1,4 +1,4 @@
-import Error from '@huds0n/error';
+import Huds0nError from '@huds0n/error';
 import { SharedState } from '@huds0n/shared-state';
 
 export namespace SharedLazyArray {
@@ -11,7 +11,7 @@ export namespace SharedLazyArray {
   export type State<E> = {
     data: E[];
     pageEnd: boolean;
-    isError: Error | null;
+    isError: Huds0nError | null;
     isLoading: boolean;
   };
 }
@@ -31,7 +31,9 @@ export class SharedLazyArray<E> {
     this._lazyGetFunction = lazyGetFunction;
 
     this.lazyGet = this.lazyGet.bind(this);
+    this.refresh = this.refresh.bind(this);
     this.reset = this.reset.bind(this);
+    this.use = this.use.bind(this);
     this.useArray = this.useArray.bind(this);
   }
 
@@ -77,7 +79,7 @@ export class SharedLazyArray<E> {
         return { data: newData, pageEnd: newPageEnd };
       } catch (error) {
         this._SharedState.setState({
-          isError: new Error({
+          isError: Huds0nError.transform(error, {
             name: 'State Error',
             code: 'LAZY_GET_ERROR',
             message: 'Error lazy getting data',
@@ -92,13 +94,25 @@ export class SharedLazyArray<E> {
     return null;
   }
 
+  refresh() {
+    this._SharedState.refresh();
+  }
+
   reset() {
     this._SharedState.reset();
   }
 
-  useArray() {
-    const [state] = this._SharedState.useState();
-
+  use() {
+    const [state] = this._SharedState.useState([
+      'data',
+      'isError',
+      'isLoading',
+      'pageEnd',
+    ]);
     return state;
+  }
+
+  useArray() {
+    return this.use().data;
   }
 }

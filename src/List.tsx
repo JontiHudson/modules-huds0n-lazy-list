@@ -1,50 +1,25 @@
-import React from 'react';
-import { ActivityIndicator, FlatList as FlatListRN, View } from 'react-native';
+import React from "react";
+import { ActivityIndicator, FlatList as FlatListRN, View } from "react-native";
 
-import { FlatList, Icon } from '@huds0n/components';
-import { theme } from '@huds0n/theming/src/theme';
+import { FlatList, Icon } from "@huds0n/components";
+import { theme } from "@huds0n/theming/src/theme";
 import {
   useAsyncCallback,
   useCallback,
   useEffect,
   useMemo,
-} from '@huds0n/utilities';
+} from "@huds0n/utilities";
 
-import { SharedLazyArray } from './SharedLazyArray';
-
-export namespace LazyList {
-  export type Props<ItemT = any> = Omit<
-    FlatList.Props<ItemT>,
-    'data' | 'onEndReached'
-  > & {
-    onEndReached?:
-      | ((info: {
-          distanceFromEnd: number;
-          pageEnd?: boolean;
-          fetching?: boolean;
-        }) => void)
-      | null;
-    onRefresh?: () => void | Promise<void>;
-    SharedLazyArray: SharedLazyArray<ItemT>;
-    showFetchingIndicator?: boolean;
-    errorIcon?: false | Icon.Props;
-  };
-
-  export type Ref<ItemT = any> = React.Ref<FlatListRN<ItemT>>;
-
-  export type Component<ItemT = any> = React.ForwardRefExoticComponent<
-    Props<ItemT> & React.RefAttributes<FlatListRN<ItemT>>
-  >;
-}
+import type { Types } from "./types";
 
 const DEFAULT_ERROR_ICON = {
-  set: 'AntDesign',
-  name: 'warning',
+  set: "AntDesign",
+  name: "warning",
   size: 24,
 } as const;
 
-export const LazyList = React.forwardRef<FlatListRN, LazyList.Props>(
-  (props: LazyList.Props, ref: LazyList.Ref) => {
+export const LazyList = React.forwardRef<FlatListRN, Types.LazyListProps>(
+  (props: Types.LazyListProps, ref: Types.LazyListRef) => {
     const {
       onRefresh,
       numColumns,
@@ -70,7 +45,7 @@ export const LazyList = React.forwardRef<FlatListRN, LazyList.Props>(
         }
       },
       [!pageEnd && !data.length],
-      { layout: 'BEFORE' },
+      { layout: "BEFORE" }
     );
 
     const onPullToRefresh = useCallback(() => {
@@ -83,7 +58,7 @@ export const LazyList = React.forwardRef<FlatListRN, LazyList.Props>(
         onEndReached?.({ ...info, fetching, pageEnd });
         !pageEnd && !fetching && fetch();
       },
-      [onEndReached, fetching],
+      [onEndReached, fetching]
     );
 
     const _ListFooterComponent = useMemo(() => {
@@ -91,9 +66,9 @@ export const LazyList = React.forwardRef<FlatListRN, LazyList.Props>(
         return (
           <View
             style={{
-              width: '100%',
-              alignContent: 'center',
-              justifyContent: 'center',
+              width: "100%",
+              alignContent: "center",
+              justifyContent: "center",
               padding: theme.spacings.L,
             }}
           >
@@ -105,9 +80,9 @@ export const LazyList = React.forwardRef<FlatListRN, LazyList.Props>(
         return (
           <View
             style={{
-              width: '100%',
-              alignContent: 'center',
-              justifyContent: 'center',
+              width: "100%",
+              alignContent: "center",
+              justifyContent: "center",
               padding: theme.spacings.L,
             }}
           >
@@ -138,5 +113,5 @@ export const LazyList = React.forwardRef<FlatListRN, LazyList.Props>(
         onPullToRefresh={onPullToRefresh}
       />
     );
-  },
+  }
 );

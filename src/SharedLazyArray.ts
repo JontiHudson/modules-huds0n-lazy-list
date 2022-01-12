@@ -1,34 +1,28 @@
-import Huds0nError from '@huds0n/error';
-import { SharedState } from '@huds0n/shared-state';
+import Huds0nError from "@huds0n/error";
+import { SharedState } from "@huds0n/shared-state";
 
-export namespace SharedLazyArray {
-  export type GetResult<E> = { data: E[]; pageEnd?: boolean };
-  export type GetFunction<E> = (
-    offset: number,
-    data: E[],
-  ) => GetResult<E> | Promise<GetResult<E>>;
+import type { Types } from "./types";
 
-  export type State<E> = {
-    data: E[];
-    pageEnd: boolean;
-    isError: Huds0nError | null;
-    isLoading: boolean;
-  };
-}
+type State<E> = {
+  data: E[];
+  pageEnd: boolean;
+  isError: Huds0nError | null;
+  isLoading: boolean;
+};
 
 export class SharedLazyArray<E> {
-  private _lazyGetFunction: SharedLazyArray.GetFunction<E>;
-  private _SharedState: SharedState<SharedLazyArray.State<E>>;
+  private _lazyGet: Types.LazyGet<E>;
+  private _SharedState: SharedState<State<E>>;
 
-  constructor(lazyGetFunction: SharedLazyArray.GetFunction<E>) {
-    this._SharedState = new SharedState<SharedLazyArray.State<E>>({
+  constructor(lazyGet: Types.LazyGet<E>) {
+    this._SharedState = new SharedState<State<E>>({
       data: [],
       pageEnd: false,
       isError: null,
       isLoading: false,
     });
 
-    this._lazyGetFunction = lazyGetFunction;
+    this._lazyGet = lazyGet;
 
     this.lazyGet = this.lazyGet.bind(this);
     this.refresh = this.refresh.bind(this);
@@ -67,7 +61,7 @@ export class SharedLazyArray<E> {
 
       try {
         const { data: newData, pageEnd: newPageEnd } = await Promise.resolve(
-          this._lazyGetFunction(data.length, data),
+          this._lazyGet(data.length, data)
         );
 
         this._SharedState.setState({
@@ -80,10 +74,10 @@ export class SharedLazyArray<E> {
       } catch (error) {
         this._SharedState.setState({
           isError: Huds0nError.transform(error, {
-            name: 'State Error',
-            code: 'LAZY_GET_ERROR',
-            message: 'Error lazy getting data',
-            severity: 'HIGH',
+            name: "State Error",
+            code: "LAZY_GET_ERROR",
+            message: "Error lazy getting data",
+            severity: "HIGH",
             info: { ...this._SharedState.state },
           }),
           isLoading: false,
@@ -104,10 +98,10 @@ export class SharedLazyArray<E> {
 
   use() {
     const [state] = this._SharedState.useState([
-      'data',
-      'isError',
-      'isLoading',
-      'pageEnd',
+      "data",
+      "isError",
+      "isLoading",
+      "pageEnd",
     ]);
     return state;
   }

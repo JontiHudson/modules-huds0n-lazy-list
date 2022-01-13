@@ -34,8 +34,8 @@ function LazyListPlayground() {
     </react_native_1.SafeAreaView>);
 }
 exports.default = LazyListPlayground;
-const DemoLazyState = new lazy_list_1.SharedLazyArray((offset) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
-    yield (0, utilities_1.timeout)(500);
+const DemoLazyState = new lazy_list_1.SharedLazyArray(async (offset) => {
+    await (0, utilities_1.timeout)(500);
     let value = offset;
     const data = [];
     let elementNum = 0;
@@ -50,4 +50,4 @@ const DemoLazyState = new lazy_list_1.SharedLazyArray((offset) => (0, tslib_1.__
         data.push({ value });
     }
     return { data, pageEnd };
-}));
+});

@@ -13,11 +13,11 @@ const DEFAULT_ERROR_ICON = {
     size: 24,
 };
 exports.LazyList = react_1.default.forwardRef((props, ref) => {
-    const { onRefresh, numColumns, SharedLazyArray, onEndReached, showFetchingIndicator = true, ListEmptyComponent, ListFooterComponent, errorIcon = DEFAULT_ERROR_ICON, ...flatlistProps } = props;
+    const { onRefresh, numColumns, SharedLazyArray, onEndReached, showFetchingIndicator = true, ListEmptyComponent, ListFooterComponent, errorIcon = DEFAULT_ERROR_ICON } = props, flatlistProps = (0, tslib_1.__rest)(props, ["onRefresh", "numColumns", "SharedLazyArray", "onEndReached", "showFetchingIndicator", "ListEmptyComponent", "ListFooterComponent", "errorIcon"]);
     const { data, isError, pageEnd } = SharedLazyArray.use();
-    const [fetch, fetching] = (0, utilities_1.useAsyncCallback)(async () => {
-        await SharedLazyArray.lazyGet();
-    });
+    const [fetch, fetching] = (0, utilities_1.useAsyncCallback)(() => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+        yield SharedLazyArray.lazyGet();
+    }));
     (0, utilities_1.useEffect)(() => {
         if (!pageEnd && !data.length) {
             fetch();
@@ -25,10 +25,10 @@ exports.LazyList = react_1.default.forwardRef((props, ref) => {
     }, [!pageEnd && !data.length], { layout: "BEFORE" });
     const onPullToRefresh = (0, utilities_1.useCallback)(() => {
         SharedLazyArray.reset();
-        return Promise.resolve(onRefresh?.());
+        return Promise.resolve(onRefresh === null || onRefresh === void 0 ? void 0 : onRefresh());
     }, [onRefresh]);
     const handleEndReached = (0, utilities_1.useCallback)((info) => {
-        onEndReached?.({ ...info, fetching, pageEnd });
+        onEndReached === null || onEndReached === void 0 ? void 0 : onEndReached(Object.assign(Object.assign({}, info), { fetching, pageEnd }));
         !pageEnd && !fetching && fetch();
     }, [onEndReached, fetching]);
     const _ListFooterComponent = (0, utilities_1.useMemo)(() => {
